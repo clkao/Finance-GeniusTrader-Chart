@@ -23,16 +23,29 @@
 }  
 </style>
 <script type="text/javascript">
-var R;
 jQuery(function() {
 var r = Raphael("holder", 800, 600);
 var cnt = <?= $cnt ?>;
 
 var view = new GTChart.View({ r: r, x: 10, y: 10, width: 750, height: 600,
                               items_to_load: 200, cnt: cnt});
-var zone  = view.new_zone({ y:  10, height: 230});
-var zone2 = view.new_zone({ y: 250, height: 150});
 
+var zone  = view.new_zone({ y:  10, height: 230});
+zone.add_loader('/d/<?= $code ?>/<?= $tf ?>/prices', {},
+                zone.render_candle);
+
+zone.add_loader('/d/<?= $code ?>/<?= $tf ?>/indicator',
+                { name: "I:SMA 5" },
+                zone.render_curve);
+
+var zone2 = view.new_zone({ y: 250, height: 150});
+zone2.add_loader('/d/<?= $code ?>/<?= $tf ?>/indicator',
+                 { name: "I:Prices VOLUME" },
+                 zone.render_bar);
+
+view.load();
+
+// XXX: scrolling stuff, should be moved away
 
 var scrolling = false;
 
@@ -51,19 +64,6 @@ jQuery('#left').mousedown(function() {
 scrolling = new Date;
 startScrolling(function() { view.scroll_left() });
 }).mouseup(function() { scrolling = false }) ;
-
-zone.add_loader('/d/<?= $code ?>/<?= $tf ?>/prices', {},
-                zone.render_candle);
-
-zone.add_loader('/d/<?= $code ?>/<?= $tf ?>/indicator', 
-                { name: "I:SMA 5" },
-                zone.render_curve);
-
-zone2.add_loader('/d/<?= $code ?>/<?= $tf ?>/indicator', 
-                 { name: "I:Prices VOLUME" },
-                 zone.render_bar);
-
-view.load();
 
 // XXX: support mouse wheel: http://code.google.com/p/parchment/source/browse/trunk/src/plugins/jquery.mousewheel.js?spec=svn151&r=151
 

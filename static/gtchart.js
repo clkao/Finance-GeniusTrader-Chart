@@ -1,5 +1,3 @@
-var L = [];
-var xxx = [];
 var OPEN = 1,
     HIGH = 2,
     LOW  = 3,
@@ -145,7 +143,6 @@ Module("GTChart", function(m) {
                 this.label = this.r.text(700, this.y+150).attr({font: '12px Fontin-Sans, Arial', fill: "#000"});
                 this.blanket = this.r.set();
                 this.clip = {'clip-rect': [this.x, this.y, this.width, this.height].join(",") };
-                L.push(this.label);
             }
         },
         methods: {
@@ -218,7 +215,7 @@ Module("GTChart", function(m) {
                         return name+": "+data;
                     })})(data);
                 }
-                p.attr(this.offset).attr({stroke: color});
+                p.attr(this.offset).attr(this.clip).attr({stroke: color});
                 this.blanket.push(p);
             },
             render_bar: function(data_set, start_idx, color) {
