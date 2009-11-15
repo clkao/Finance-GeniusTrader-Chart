@@ -1,0 +1,60 @@
+NAME
+    Finance::GeniusTrader::Chart - raphaeljs-based charting for
+    Finance::GeniusTrader
+
+VERSION
+    Version 0.01
+
+SYNOPSIS
+      # use the cpan-pu branch of Finance::GeniusTrade from
+      # http://github.com/clkao/finance-geniustrader/tree/cpan-pu
+
+      % plackup -p 3997
+
+      # visit http://localhost:3997/d/TX/day, change code and timeframe accordingly
+
+AUTHOR
+    Chia-liang Kao, "<clkao at clkao.org>"
+
+BUGS
+    Please report any bugs or feature requests to
+    "bug-finance-geniustrader-chart at rt.cpan.org", or through the web
+    interface at
+    <http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Finance-GeniusTrader-Cha
+    rt>. I will be notified, and then you'll automatically be notified of
+    progress on your bug as I make changes.
+
+SUPPORT
+    You can find documentation for this module with the perldoc command.
+
+        perldoc Finance::GeniusTrader::Chart
+
+    You can also look for information at:
+
+    *   RT: CPAN's request tracker
+
+        <http://rt.cpan.org/NoAuth/Bugs.html?Dist=Finance-GeniusTrader-Chart
+        >
+
+    *   AnnoCPAN: Annotated CPAN documentation
+
+        <http://annocpan.org/dist/Finance-GeniusTrader-Chart>
+
+    *   CPAN Ratings
+
+        <http://cpanratings.perl.org/d/Finance-GeniusTrader-Chart>
+
+    *   Search CPAN
+
+        <http://search.cpan.org/dist/Finance-GeniusTrader-Chart/>
+
+ACKNOWLEDGEMENTS
+COPYRIGHT & LICENSE
+    Copyright 2009 Chia-liang Kao.
+
+    This program is free software; you can redistribute it and/or modify it
+    under the terms of either: the GNU General Public License as published
+    by the Free Software Foundation; or the Artistic License.
+
+    See http://dev.perl.org/licenses/ for more information.
+
