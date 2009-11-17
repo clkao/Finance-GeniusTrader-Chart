@@ -12,6 +12,7 @@ requires 'Try::Tiny';
 requires 'Plack';
 requires 'Plack::Middleware::JSConcat';
 requires 'Tatsumaki';
+requires 'Try::Tiny';
 requires 'JSON';
 requires 'Finance::GeniusTrader::CLI'; # XXX requires my branch
 

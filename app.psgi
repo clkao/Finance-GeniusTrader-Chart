@@ -21,7 +21,8 @@ use base qw(Finance::GeniusTrader::Chart::Handler);
 
 sub get {
     my ($self, $code, $tf) = @_;
-    my $calc = $self->_get_calc($code, $tf);
+    my $calc = $self->_get_calc($code, $tf)
+        or Tatsumaki::Error::HTTP->throw(404);
     $self->render('default.html', { env => $self->request->env, code => $code, tf => $tf, calc => $calc } );
 }
 
@@ -34,9 +35,11 @@ sub post {
     my ($self, $code, $tf) = @_;
     my $v = $self->request->params;
     unless (defined $v->{start} && defined $v->{end}) {
-            return [ 404, [ "Content-Type" => "text/plain" ], [ "Not Found" ] ];
+        Tatsumaki::Error::HTTP->throw(404);
     }
-    my $calc = $self->_get_calc($code, $tf);
+    my $calc = $self->_get_calc($code, $tf)
+        or Tatsumaki::Error::HTTP->throw(404);
+
     $self->response->content_type('application/json; charset=UTF-8');
     my $res = [ map { [ @$_[$DATE, $OPEN, $HIGH, $LOW, $CLOSE] ] }
                     map { $calc->prices->at($_) } ($v->{start}..$v->{end}) ];
@@ -54,9 +57,11 @@ sub post {
     my ($self, $code, $tf) = @_;
     my $v = $self->request->params;
     unless (defined $v->{start} && defined $v->{end}) {
-            return [ 404, [ "Content-Type" => "text/plain" ], [ "Not Found" ] ];
+        Tatsumaki::Error::HTTP->throw(404);
     }
-    my $calc = $self->_get_calc($code, $tf);
+    my $calc = $self->_get_calc($code, $tf)
+        or Tatsumaki::Error::HTTP->throw(404);
+
 
     my ($mod, $arg) = split(/ /, $v->{name}, 2);
     my $object = create_standard_object($mod, $arg) or die;;
