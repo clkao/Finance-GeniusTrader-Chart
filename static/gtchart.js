@@ -189,14 +189,23 @@ Module("GTChart", function(m) {
                 this.offset = { translation: [this.x-(this.view.offset*10), this.y/yscale], scale: [1,yscale,1,1] };
             },
             render_curve: function(data_set, start_idx, color) {
+                var dx = 10;
                 if (!color) color = 'blue';
                 if (!this.ymax) {
                     this.resize(data_set, data_set);
+                    if (this.ymin < 0) {
+                        console.log(dx*start_idx);
+                        console.log(dx*(start_idx+this.view.nb_items()));
+                        var p = this.r.path()
+                            .moveTo(dx*start_idx, this.ymax)
+                            .lineTo(dx*(start_idx+this.view.items_to_load), this.ymax)
+                            .attr(this.offset).attr({stroke: 'black', opacity: 0.5});
+                        this.blanket.push(p);
+                    }
                 }
 
                 var p = this.r.path();
                 var name = 'SMA 5';
-                var dx = 10;
                 var callback = [];
                 this._callbacks.push(callback);
                 for (var i in data_set) {
@@ -229,7 +238,9 @@ Module("GTChart", function(m) {
                 for (var i in data_set) {
                     var data = data_set[i];
                     var x = dx * (parseInt(i)+start_idx);
-                    var bar = this.rect(x-width/2, data, width+1, data-this.ymin).attr({fill: color, stroke: 'none'});
+                    var bar = data >= 0
+                        ? this.rect(x-width/2, data, width+1, data-Math.max(0,this.ymin)).attr({fill: color, stroke: 'none'})
+                        : this.rect(x-width/2, 0, width+1, 0-data).attr({fill: color, stroke: 'none'});
                     this.blanket.push(bar);
                 }
             },
