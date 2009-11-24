@@ -1,20 +1,24 @@
 % my $code = $_[0]->{code};
 % my $tf = $_[0]->{tf};
 % my $calc = $_[0]->{calc};
+% my $channel = "$code/$tf";
 % my $cnt = $calc->prices->count;
 % my $jsurl = $_[0]{env}{'psgix.jsconcat.url'};
 <html>
 <head>
 <title>GT Chart for <%= $code %></title>
 % if ($jsurl) {
-<script src="<%= $jsurl %>"></script>
+<script src="<%= $jsurl %>" type="text/javascript"></script>
 % } else {
 <script src="/static/jquery-1.3.2.min.js"></script>
 <script src="/static/raphael.js" type="text/javascript" charset="utf-8"></script>
 <script src="/static/plugins/raphael.path.methods.js" type="text/javascript" charset="utf-8"></script>
 <script src="/static/joose.js" type="text/javascript" charset="utf-8"></script>
+<script src="/static/jquery.ev.js" type="text/javascript" charset="utf-8"></script>
 <script src="/static/gtchart.js" type="text/javascript" charset="utf-8"></script>
 % }
+<script src="/static/DUI.js" type="text/javascript" charset="utf-8"></script>
+<script src="/static/Stream.js" type="text/javascript" charset="utf-8"></script>
 <link rel="stylesheet" href="/static/screen.css" />
 <style type="text/css" media="screen">
 #holder {
@@ -23,14 +27,30 @@
 }  
 </style>
 <script type="text/javascript">
-jQuery(function() {
+var view;
+$(function() {
 var r = Raphael("holder", 800, 600);
 var cnt = <%= $cnt %>;
 
-var view = new GTChart.View({ r: r, x: 10, y: 10, width: 750, height: 600,
+function subscribe() {
+  if (typeof DUI != 'undefined') {
+    var s = new DUI.Stream();
+    s.listen('application/json', function(payload) {
+      var event = eval('(' + payload + ')');
+      view.on_new_event(event);
+    });
+    s.load('/d/<%= $channel %>/mxhrpoll');
+  } else {
+    $.ev.handlers.message = view.on_new_event;
+    $.ev.loop('/d/<%= $channel %>/poll?client_id=' + Math.random());
+  }
+}
+
+view = new GTChart.View({ r: r, x: 10, y: 10, width: 750, height: 600,
                               items_to_load: 200, cnt: cnt});
 
 var zone  = view.new_zone({ y:  10, height: 230});
+var zone2 = view.new_zone({ y: 250, height: 150});
 zone.add_loader('/d/<%= $code %>/<%= $tf %>/prices', {},
                 zone.render_candle);
 
@@ -38,12 +58,11 @@ zone.add_loader('/d/<%= $code %>/<%= $tf %>/indicator',
                 { name: "I:SMA 5" },
                 zone.render_curve);
 
-var zone2 = view.new_zone({ y: 250, height: 150});
 zone2.add_loader('/d/<%= $code %>/<%= $tf %>/indicator',
                  { name: "I:Prices VOLUME" },
                  zone.render_bar);
 
-view.load();
+view.load(subscribe);
 
 // XXX: scrolling stuff, should be moved away
 

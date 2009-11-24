@@ -4,7 +4,7 @@ use warnings;
 use Tatsumaki;
 use Tatsumaki::Error;
 use Tatsumaki::Application;
-use Tatsumaki::HTTPClient;
+use Tatsumaki::MessageQueue;
 use Try::Tiny;
 use JSON;
 
@@ -45,6 +45,28 @@ sub post {
                     map { $calc->prices->at($_) } ($v->{start}..$v->{end}) ];
     $self->write(to_json($res));
     $self->finish;
+}
+
+package PricesMultipartPollHandler;
+use base qw(Finance::GeniusTrader::Chart::Handler);
+__PACKAGE__->asynchronous(1);
+
+sub get {
+    my ($self, $code, $tf) = @_;
+    my $calc = $self->_get_calc($code, $tf)
+        or Tatsumaki::Error::HTTP->throw(404);
+
+    my $channel = "$code/$tf";
+    my $client_id = $self->request->param('client_id') || rand(1);
+    $self->multipart_xhr_push(1);
+
+    my $mq = Tatsumaki::MessageQueue->instance($channel);
+    $mq->poll($client_id, sub {
+        my @events = @_;
+        for my $event (@events) {
+            $self->stream_write($event);
+        }
+    });
 }
 
 package IndicatorHandler;
@@ -89,6 +111,9 @@ my $tf_re = qr/\w+/;
 my $app = Tatsumaki::Application->new([
     "/d/($code_re)/($tf_re)/prices" => 'PricesHandler',
     "/d/($code_re)/($tf_re)/indicator" => 'IndicatorHandler',
+#    "/d/($code_re)/($tf_re)/poll" => 'PricesPollHandler',
+    "/d/($code_re)/($tf_re)/mxhrpoll" => 'PricesMultipartPollHandler',
+
     "/d/($code_re)/($tf_re)" => 'CodeHandler',
     '/' => 'MainHandler',
 ]);
@@ -101,10 +126,12 @@ $app = Plack::Middleware::JSConcat->wrap
     ($app,
      filter => '/Users/clkao/bin/jsmin',
      files => [map { "static/$_"}
-                   qw(jquery-1.3.2.min.js joose.js raphael.js
+                   qw(jquery-1.3.2.min.js jquery.ev.js
+                      joose.js raphael.js
                       plugins/raphael.path.methods.js
                       plugins/raphael.primitives.js
-                      gtchart.js )]);
+                      gtchart.js
+                 )]);
 }
 require Plack::Middleware::ConditionalGET;
 require Plack::Middleware::ContentLength;
