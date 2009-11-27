@@ -50,9 +50,9 @@ Module("GTChart", function(m) {
                 if(e.type == 'tick' || e.type == 'bar') {
                     if(e.i <= this.cnt-1 && e.type == 'tick')
                         oldbar = this.tmpbar;
-
                     if(e.i > this.cnt-1) {
                         this.add_column(e.i-this.loaded_offset);
+                        ++this.cnt;
                         this.blanket.translate(-10, 0);
                         jQuery.each(this.zones, function() { this.blanket.translate(-10,0) });
                         this.offset++;
