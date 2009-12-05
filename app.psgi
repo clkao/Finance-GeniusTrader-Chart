@@ -47,6 +47,25 @@ sub post {
     $self->finish;
 }
 
+package ResolveDateHandler;
+use base qw(Finance::GeniusTrader::Chart::Handler);
+use JSON;
+
+sub post {
+    my ($self, $code, $tf) = @_;
+    my $v = $self->request->params;
+    my $d = $v->{date};
+    $d = [ $d ? $d : () ] unless ref($d) eq 'ARRAY';
+
+    my $calc = $self->_get_calc($code, $tf)
+        or Tatsumaki::Error::HTTP->throw(404);
+
+    $self->response->content_type('application/json; charset=UTF-8');
+    my $res = [ map { $calc->prices->date($_) } @$d ];
+    $self->write(to_json($res));
+    $self->finish;
+}
+
 package PricesMultipartPollHandler;
 use base qw(Finance::GeniusTrader::Chart::Handler);
 __PACKAGE__->asynchronous(1);
@@ -111,9 +130,9 @@ my $tf_re = qr/\w+/;
 my $app = Tatsumaki::Application->new([
     "/d/($code_re)/($tf_re)/prices" => 'PricesHandler',
     "/d/($code_re)/($tf_re)/indicator" => 'IndicatorHandler',
+    "/d/($code_re)/($tf_re)/resolvedate" => 'ResolveDateHandler',
 #    "/d/($code_re)/($tf_re)/poll" => 'PricesPollHandler',
     "/d/($code_re)/($tf_re)/mxhrpoll" => 'PricesMultipartPollHandler',
-
     "/d/($code_re)/($tf_re)" => 'CodeHandler',
     '/' => 'MainHandler',
 ]);

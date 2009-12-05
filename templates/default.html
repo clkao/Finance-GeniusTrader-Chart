@@ -47,7 +47,8 @@ function subscribe() {
 }
 
 view = new GTChart.View({ r: r, x: 10, y: 10, width: 750, height: 600,
-                              items_to_load: 200, cnt: cnt});
+                          code: '<%= $code %>', tf: '<%= $tf %>',
+                          items_to_load: 200, cnt: cnt});
 
 var zone  = view.new_zone({ y:  10, height: 230});
 var zone2 = view.new_zone({ y: 250, height: 150});

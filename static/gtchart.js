@@ -17,6 +17,8 @@ Module("GTChart", function(m) {
                r   :   { is: "rw" },
                offset: { is: "rw" },
                loaded_offset: { is: "rw" },
+               code: { is: "ro" },
+               tf: { is: "ro" },
                zones: { is: "rw" },
                blanket: { is: "rw" },
                cnt     : { is: "rw" },
@@ -63,6 +65,21 @@ Module("GTChart", function(m) {
                     this.zones[0]._callbacks[0][e.i - this.loaded_offset] = ret[1];
                     if(oldbar) oldbar.remove();
                 }
+            },
+            seek_to_date: function(date) {
+                var that = this;
+                jQuery.post('/d/'+this.code+'/'+this.tf+'/resolvedate', 
+                            { date: date },
+                            function(response, status) {
+                                that.seek_to(response[0]);
+                            }, 'json');
+            },
+            seek_to: function(i) {
+                var offset = Math.min(i, this.cnt - this.nb_items());
+                this.loaded_offset = Math.max(offset-10, 0);
+                this.offset = offset;
+                this.load();
+                this.blanket.toFront();
             },
             scroll_right: function() {
                 if (this.offset+this.nb_items() >= this.cnt) return;
